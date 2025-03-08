@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Random Slot Picker</title>
+  <title>Slot Assistant</title>
   <style>
-    /* Global Styles with background gradient */
+    /* Global Styles with Black-to-Grey Gradient */
     body {
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       text-align: center;
       margin: 0;
       padding: 0;
       overflow-x: hidden;
-      background: linear-gradient(135deg, #141E30, #243B55);
+      background: linear-gradient(135deg, #000, #555);
       color: #f0f0f0;
     }
     h1 {
@@ -20,13 +20,19 @@
       letter-spacing: 1px;
       color: #fff;
     }
-    /* Provider Dropdown Menu */
-    #providerDropdown {
-      font-size: 16px;
-      padding: 5px 10px;
+    /* Provider Checkboxes */
+    #providerCheckboxes {
       margin: 15px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+    }
+    #providerCheckboxes label {
+      font-size: 16px;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+    #providerCheckboxes input[type="checkbox"] {
+      margin-right: 5px;
+      transform: scale(1.2);
+      vertical-align: middle;
     }
     /* Button Styling */
     button {
@@ -71,9 +77,13 @@
       flex-shrink: 0;
       transition: transform 0.3s ease-in-out;
       cursor: pointer;
-      border: 1px solid #ccc;
+      border: 1px solid #666;
       border-radius: 5px;
-      background: #fff;
+      background: #444; /* Grey background */
+      color: #fff;    /* White text */
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .slot img {
       width: 100%;
@@ -177,14 +187,13 @@
   </style>
 </head>
 <body>
-  <h1>Random Slot Picker</h1>
+  <h1>Slot Assistant</h1>
   
-  <!-- Provider Dropdown Menu -->
-  <select id="providerDropdown">
-    <option value="both">Both Providers</option>
-    <option value="pragmatic">Pragmatic Play Only</option>
-    <option value="hacksaw">Hacksaw Gaming Only</option>
-  </select>
+  <!-- Provider Checkboxes -->
+  <div id="providerCheckboxes">
+    <label><input type="checkbox" id="pragmaticCheckbox" checked> Pragmatic Play</label>
+    <label><input type="checkbox" id="hacksawCheckbox" checked> Hacksaw Gaming</label>
+  </div>
   
   <button id="randomButton">Pick Random Slot</button>
   
@@ -300,27 +309,31 @@
         });
     }
 
-    // Load slots based on dropdown selection
+    // Load slots based on checkbox selection
     function loadSlots() {
-      const provider = document.getElementById('providerDropdown').value; // "both", "pragmatic", "hacksaw"
+      const pragmaticChecked = document.getElementById('pragmaticCheckbox').checked;
+      const hacksawChecked = document.getElementById('hacksawCheckbox').checked;
       pragmaticSlots = [];
       hacksawSlots = [];
       slots = [];
       let promises = [];
-      if (provider === "pragmatic" || provider === "both") {
+      if (pragmaticChecked) {
         promises.push(fetchSlots('prags.txt', 'pragmatic').then(arr => { pragmaticSlots = arr; }));
       }
-      if (provider === "hacksaw" || provider === "both") {
+      if (hacksawChecked) {
         promises.push(fetchSlots('hacksaws.txt', 'hacksaw').then(arr => { hacksawSlots = arr; }));
       }
       Promise.all(promises)
         .then(() => {
-          if (provider === "pragmatic") {
-            slots = pragmaticSlots.slice();
-          } else if (provider === "hacksaw") {
-            slots = hacksawSlots.slice();
-          } else { // both
+          if (pragmaticChecked && hacksawChecked) {
             slots = pragmaticSlots.concat(hacksawSlots);
+          } else if (pragmaticChecked) {
+            slots = pragmaticSlots.slice();
+          } else if (hacksawChecked) {
+            slots = hacksawSlots.slice();
+          } else {
+            slots = [];
+            alert('Please select at least one provider.');
           }
           shuffleArray(slots);
           updateSliderDisplay();
@@ -328,11 +341,12 @@
         .catch(err => console.error("Error loading slots:", err));
     }
 
-    // Weighted random selection based on provider and exclusion rule
+    // Weighted random selection based on checkboxes and exclusion rule
     function getWeightedRandomSlot() {
-      const provider = document.getElementById('providerDropdown').value;
+      const pragmaticChecked = document.getElementById('pragmaticCheckbox').checked;
+      const hacksawChecked = document.getElementById('hacksawCheckbox').checked;
       let chosenSlot = null;
-      if (provider === "pragmatic") {
+      if (pragmaticChecked && !hacksawChecked) {
         let allowed = pragmaticSlots.filter(slot => {
           let name = slot.dataset.name.toLowerCase();
           return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
@@ -345,7 +359,7 @@
             ? allowed[Math.floor(Math.random() * 30)]
             : allowed[30 + Math.floor(Math.random() * (allowed.length - 30))];
         }
-      } else if (provider === "hacksaw") {
+      } else if (!pragmaticChecked && hacksawChecked) {
         let allowed = hacksawSlots.filter(slot => {
           let name = slot.dataset.name.toLowerCase();
           return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
@@ -358,7 +372,7 @@
             ? allowed[Math.floor(Math.random() * 16)]
             : allowed[16 + Math.floor(Math.random() * (allowed.length - 16))];
         }
-      } else { // both
+      } else if (pragmaticChecked && hacksawChecked) {
         let pragmaticAllowed = pragmaticSlots.filter(slot => {
           let name = slot.dataset.name.toLowerCase();
           return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
@@ -405,9 +419,9 @@
         alert('No allowed slots loaded!');
         return;
       }
-      // Find the chosen slot’s unique ID in the displayed slider.
+      // Look for the chosen slot’s unique ID only in the original (non-duplicated) slider set.
+      const sliderSlots = Array.from(document.getElementById('slider').children).slice(0, slots.length);
       let chosenId = chosenSlot.dataset.slotId;
-      const sliderSlots = Array.from(document.getElementById('slider').children);
       let finalIndex = sliderSlots.findIndex(el => el.dataset.slotId === chosenId);
       if (finalIndex === -1) finalIndex = 0;
       
@@ -482,8 +496,9 @@
       updateSliderDisplay();
     }
 
-    // Reload slots whenever the provider dropdown changes
-    document.getElementById('providerDropdown').addEventListener('change', loadSlots);
+    // Reload slots whenever the provider checkboxes change
+    document.getElementById('pragmaticCheckbox').addEventListener('change', loadSlots);
+    document.getElementById('hacksawCheckbox').addEventListener('change', loadSlots);
 
     document.addEventListener('DOMContentLoaded', loadSlots);
   </script>
