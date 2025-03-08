@@ -79,10 +79,28 @@
       background: #444;
       transform: translateY(-2px);
     }
-    /* New Task Button Styling */
-    .task-btn {
-      background: #008CBA;
-      color: #fff;
+    /* Modal Buttons Styling */
+    .modal-content .play-btn {
+      /* Same as cancel button now */
+      background: #ccc;
+      color: #333;
+    }
+    .modal-content .play-btn:hover {
+      background: #bbb;
+      transform: translateY(-2px);
+    }
+    .modal-content .cancel-btn {
+      background: #ccc;
+      color: #333;
+    }
+    .modal-content .cancel-btn:hover {
+      background: #bbb;
+      transform: translateY(-2px);
+    }
+    /* Generate Random Task Button Styling */
+    .modal-content .task-btn {
+      background: #ccc;
+      color: #333;
       margin: 5px;
       padding: 10px 20px;
       font-size: 16px;
@@ -90,10 +108,18 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background 0.3s, transform 0.3s;
+      display: block;
+      margin-top: 15px;
     }
-    .task-btn:hover {
-      background: #005f7a;
+    .modal-content .task-btn:hover {
+      background: #bbb;
       transform: translateY(-2px);
+    }
+    /* Style for Task Display */
+    #taskDisplay {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
     }
     /* Slider Container with Grey Background */
     #sliderContainer {
@@ -208,31 +234,6 @@
       background: #444;
       color: #fff;
     }
-    .modal-content button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.3s;
-    }
-    .modal-content .play-btn {
-      background: #222;
-      color: #fff;
-    }
-    .modal-content .play-btn:hover {
-      background: #444;
-      transform: translateY(-2px);
-    }
-    .modal-content .cancel-btn {
-      background: #ccc;
-      color: #333;
-    }
-    .modal-content .cancel-btn:hover {
-      background: #bbb;
-      transform: translateY(-2px);
-    }
   </style>
 </head>
 <body>
@@ -263,8 +264,11 @@
          <!-- Domain options will be added by JavaScript -->
       </select>
       <br>
-      <button class="play-btn" id="modalPlayButton">Play Now</button>
-      <button class="cancel-btn" id="modalCancelButton">Cancel</button>
+      <div class="modal-buttons">
+        <button class="play-btn" id="modalPlayButton">Play Now</button>
+        <button class="cancel-btn" id="modalCancelButton">Cancel</button>
+      </div>
+      <!-- Moved below Play Now and Cancel buttons -->
       <button class="task-btn" id="modalTaskButton">Generate Random Task</button>
       <p id="taskDisplay"></p>
     </div>
@@ -570,7 +574,7 @@
       setTimeout(() => modal.classList.add('show'), 10);
       document.getElementById('modalCancelButton').onclick = hideModal;
       
-      // New: Random Task Button functionality
+      // Random Task Button functionality
       document.getElementById('modalTaskButton').onclick = function() {
         const tasks = [
           "do 30 spins",
