@@ -1,5 +1,3 @@
-"slot name","image url","slot link"
-"Hacksaw Gaming","https://mediumrare.imgix.net/group-banner-default.png",""
 "Duel at Dawn    Hacksaw Gaming","https://mediumrare.imgix.net/bdff3ebf4d04f586ecab90203923fa65b39626ef03359106209089e0c8b1d0d3?w=180&h=236&fit=min&auto=format","https://stake.com/casino/games/hacksaw-duel-at-dawn"
 "Hounds of Hell    Hacksaw Gaming","https://mediumrare.imgix.net/05830ae2a958fe4b3d1c334ef2e93c34406fde0f9402969ef3a4d26992024e9d?w=180&h=236&fit=min&auto=format","https://stake.com/casino/games/hacksaw-hounds-of-hell"
 "Wanted Dead or a Wild    Hacksaw Gaming","https://mediumrare.imgix.net/1e5b55d154f203af847f1619a073044cc327376ce0401af67125e14f89631902?w=180&h=236&fit=min&auto=format","https://stake.com/casino/games/hacksaw-wanted-dead-or-a-wild"
