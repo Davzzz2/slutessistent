@@ -79,6 +79,22 @@
       background: #444;
       transform: translateY(-2px);
     }
+    /* New Task Button Styling */
+    .task-btn {
+      background: #008CBA;
+      color: #fff;
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .task-btn:hover {
+      background: #005f7a;
+      transform: translateY(-2px);
+    }
     /* Slider Container with Grey Background */
     #sliderContainer {
       position: relative;
@@ -249,6 +265,8 @@
       <br>
       <button class="play-btn" id="modalPlayButton">Play Now</button>
       <button class="cancel-btn" id="modalCancelButton">Cancel</button>
+      <button class="task-btn" id="modalTaskButton">Generate Random Task</button>
+      <p id="taskDisplay"></p>
     </div>
   </div>
   
@@ -551,6 +569,22 @@
       modal.style.display = 'flex';
       setTimeout(() => modal.classList.add('show'), 10);
       document.getElementById('modalCancelButton').onclick = hideModal;
+      
+      // New: Random Task Button functionality
+      document.getElementById('modalTaskButton').onclick = function() {
+        const tasks = [
+          "do 30 spins",
+          "do 50 spins",
+          "do 100 spins",
+          "Buy a Super Bonus",
+          "Buy a Normal bonus",
+          "do 10 feature spins",
+          "do 20 feature spins",
+          "do 30 feature spins"
+        ];
+        const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
+        document.getElementById('taskDisplay').textContent = randomTask;
+      };
     }
 
     function hideModal() {
@@ -560,6 +594,7 @@
         modal.style.display = 'none';
         document.getElementById('randomButton').disabled = false;
         reshuffleSlots();
+        document.getElementById('taskDisplay').textContent = '';
       }, 300);
     }
 
