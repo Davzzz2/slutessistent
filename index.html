@@ -101,7 +101,7 @@
     .modal-content .task-btn {
       background: #ccc;
       color: #333;
-      margin: 5px;
+      margin: 15px auto; /* centers the button horizontally */
       padding: 10px 20px;
       font-size: 16px;
       border: none;
@@ -109,7 +109,6 @@
       cursor: pointer;
       transition: background 0.3s, transform 0.3s;
       display: block;
-      margin-top: 15px;
     }
     .modal-content .task-btn:hover {
       background: #bbb;
@@ -269,7 +268,7 @@
         <button class="play-btn" id="modalPlayButton">Play Now</button>
         <button class="cancel-btn" id="modalCancelButton">Cancel</button>
       </div>
-      <!-- Moved below Play Now and Cancel buttons -->
+      <!-- Generate Random Task Button centered -->
       <button class="task-btn" id="modalTaskButton">Generate Random Task</button>
       <p id="taskDisplay"></p>
     </div>
