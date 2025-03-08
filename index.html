@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Random Slot Picker</title>
+  <style>
+    /* Global Styles with background gradient */
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #141E30, #243B55);
+      color: #f0f0f0;
+    }
+    h1 {
+      margin-top: 20px;
+      font-size: 2.5em;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+    /* Provider Dropdown Menu */
+    #providerDropdown {
+      font-size: 16px;
+      padding: 5px 10px;
+      margin: 15px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    /* Button Styling */
+    button {
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    #randomButton {
+      background: #222;
+      color: #fff;
+    }
+    #randomButton:hover {
+      background: #444;
+      transform: translateY(-2px);
+    }
+    /* Slider Container */
+    #sliderContainer {
+      position: relative;
+      width: 100vw;
+      height: 350px;
+      overflow: hidden;
+      margin: 20px auto;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+    }
+    /* Sliding Strip */
+    #slider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      margin: 0;
+      white-space: nowrap;
+      transform: translateX(0);
+    }
+    /* Individual Slot */
+    .slot {
+      width: 250px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease-in-out;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: #fff;
+    }
+    .slot img {
+      width: 100%;
+      height: 100%;
+      border-radius: 5px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      image-rendering: auto;
+    }
+    .slot:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    /* Center Selection Line */
+    #centerLine {
+      position: absolute;
+      width: 4px;
+      height: 100%;
+      background: #222;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0;
+      z-index: 2;
+    }
+    /* Highlighted Slot */
+    .highlight {
+      transform: scale(1.1);
+      border-color: #222;
+    }
+    /* Modal Popout */
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    #modal.show {
+      opacity: 1;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      color: #333;
+      max-width: 90%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transform: scale(0.9);
+      transition: transform 0.3s ease-in-out;
+    }
+    #modal.show .modal-content {
+      transform: scale(1);
+    }
+    .modal-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .modal-content select {
+      margin: 10px 0;
+      padding: 5px 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .modal-content button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .modal-content .play-btn {
+      background: #222;
+      color: #fff;
+    }
+    .modal-content .play-btn:hover {
+      background: #444;
+      transform: translateY(-2px);
+    }
+    .modal-content .cancel-btn {
+      background: #ccc;
+      color: #333;
+    }
+    .modal-content .cancel-btn:hover {
+      background: #bbb;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <h1>Random Slot Picker</h1>
+  
+  <!-- Provider Dropdown Menu -->
+  <select id="providerDropdown">
+    <option value="both">Both Providers</option>
+    <option value="pragmatic">Pragmatic Play Only</option>
+    <option value="hacksaw">Hacksaw Gaming Only</option>
+  </select>
+  
+  <button id="randomButton">Pick Random Slot</button>
+  
+  <div id="sliderContainer">
+    <div id="centerLine"></div>
+    <div id="slider"></div>
+  </div>
+  
+  <!-- Modal Popout -->
+  <div id="modal">
+    <div class="modal-content">
+      <img id="modalSlotImage" src="" alt="Slot Image">
+      <h2 id="modalSlotName"></h2>
+      <select id="domainSelector">
+         <!-- Domain options will be added by JavaScript -->
+      </select>
+      <br>
+      <button class="play-btn" id="modalPlayButton">Play Now</button>
+      <button class="cancel-btn" id="modalCancelButton">Cancel</button>
+    </div>
+  </div>
+  
+  <script>
+    // Global arrays to hold slots for each provider
+    let pragmaticSlots = [];
+    let hacksawSlots = [];
+    let slots = []; // Combined array for display
+    let selectedSlot = null;
+    let currentTranslate = 0; // Starting translate value
+    const speed = 2000; // pixels per second
+    let slotIdCounter = 0; // To assign unique IDs
+
+    // Domain list (Stake.com is default)
+    const domains = [
+      "stake.com",
+      "stake.ac",
+      "stake.games",
+      "stake.bet",
+      "stake.pet",
+      "stake1001.com",
+      "stake1002.com",
+      "stake1003.com",
+      "stake1021.com",
+      "stake1022.com",
+      "stake.mba",
+      "stake.jp",
+      "stake.bz",
+      "staketr.com",
+      "stake.ceo",
+      "stake.krd"
+    ];
+
+    // Populate domain selector in modal
+    const domainSelector = document.getElementById('domainSelector');
+    domains.forEach(domain => {
+      const option = document.createElement('option');
+      option.value = domain;
+      option.textContent = domain;
+      if (domain === "stake.com") option.selected = true;
+      domainSelector.appendChild(option);
+    });
+
+    // Fisher-Yates shuffle
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Update slider display with infinite loop duplication
+    function updateSliderDisplay() {
+      const slider = document.getElementById('slider');
+      slider.innerHTML = '';
+      slots.forEach(slot => slider.appendChild(slot));
+      // Duplicate slots for infinite loop effect.
+      slots.forEach(slot => {
+        let clone = slot.cloneNode(true);
+        slider.appendChild(clone);
+      });
+      currentTranslate = 0;
+      slider.style.transition = 'none';
+      slider.style.transform = `translateX(0px)`;
+    }
+
+    // Fetch slots from a given URL and assign provider and unique ID
+    function fetchSlots(url, provider) {
+      return fetch(url)
+        .then(response => response.text())
+        .then(data => {
+          let lines = data.split(/\r?\n/).filter(line => line.trim() !== '');
+          let resultSlots = [];
+          lines.forEach(line => {
+            // CSV format: "slotName","imageUrl","slotLink"
+            const parts = line.match(/"([^"]+)","([^"]+)","([^"]+)"/);
+            if (!parts) return;
+            const slotName = parts[1].trim();
+            const imageUrl = parts[2].trim();
+            const slotLink = parts[3].trim();
+            const div = document.createElement('div');
+            div.className = 'slot';
+            div.dataset.link = slotLink;
+            div.dataset.name = slotName;
+            div.dataset.provider = provider;
+            div.dataset.slotId = provider + '-' + slotIdCounter++;
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = slotName;
+            div.appendChild(img);
+            resultSlots.push(div);
+          });
+          return resultSlots;
+        });
+    }
+
+    // Load slots based on dropdown selection
+    function loadSlots() {
+      const provider = document.getElementById('providerDropdown').value; // "both", "pragmatic", "hacksaw"
+      pragmaticSlots = [];
+      hacksawSlots = [];
+      slots = [];
+      let promises = [];
+      if (provider === "pragmatic" || provider === "both") {
+        promises.push(fetchSlots('prags.txt', 'pragmatic').then(arr => { pragmaticSlots = arr; }));
+      }
+      if (provider === "hacksaw" || provider === "both") {
+        promises.push(fetchSlots('hacksaws.txt', 'hacksaw').then(arr => { hacksawSlots = arr; }));
+      }
+      Promise.all(promises)
+        .then(() => {
+          if (provider === "pragmatic") {
+            slots = pragmaticSlots.slice();
+          } else if (provider === "hacksaw") {
+            slots = hacksawSlots.slice();
+          } else { // both
+            slots = pragmaticSlots.concat(hacksawSlots);
+          }
+          shuffleArray(slots);
+          updateSliderDisplay();
+        })
+        .catch(err => console.error("Error loading slots:", err));
+    }
+
+    // Weighted random selection based on provider and exclusion rule
+    function getWeightedRandomSlot() {
+      const provider = document.getElementById('providerDropdown').value;
+      let chosenSlot = null;
+      if (provider === "pragmatic") {
+        let allowed = pragmaticSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length === 0) return null;
+        if (allowed.length <= 30) {
+          chosenSlot = allowed[Math.floor(Math.random() * allowed.length)];
+        } else {
+          chosenSlot = (Math.random() < 0.7)
+            ? allowed[Math.floor(Math.random() * 30)]
+            : allowed[30 + Math.floor(Math.random() * (allowed.length - 30))];
+        }
+      } else if (provider === "hacksaw") {
+        let allowed = hacksawSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length === 0) return null;
+        if (allowed.length <= 16) {
+          chosenSlot = allowed[Math.floor(Math.random() * allowed.length)];
+        } else {
+          chosenSlot = (Math.random() < 0.7)
+            ? allowed[Math.floor(Math.random() * 16)]
+            : allowed[16 + Math.floor(Math.random() * (allowed.length - 16))];
+        }
+      } else { // both
+        let pragmaticAllowed = pragmaticSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        let hacksawAllowed = hacksawSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        let providerChoice;
+        if (pragmaticAllowed.length && hacksawAllowed.length) {
+          providerChoice = Math.random() < 0.5 ? "pragmatic" : "hacksaw";
+        } else if (pragmaticAllowed.length) {
+          providerChoice = "pragmatic";
+        } else if (hacksawAllowed.length) {
+          providerChoice = "hacksaw";
+        } else {
+          return null;
+        }
+        if (providerChoice === "pragmatic") {
+          if (pragmaticAllowed.length <= 30) {
+            chosenSlot = pragmaticAllowed[Math.floor(Math.random() * pragmaticAllowed.length)];
+          } else {
+            chosenSlot = (Math.random() < 0.7)
+              ? pragmaticAllowed[Math.floor(Math.random() * 30)]
+              : pragmaticAllowed[30 + Math.floor(Math.random() * (pragmaticAllowed.length - 30))];
+          }
+        } else {
+          if (hacksawAllowed.length <= 16) {
+            chosenSlot = hacksawAllowed[Math.floor(Math.random() * hacksawAllowed.length)];
+          } else {
+            chosenSlot = (Math.random() < 0.7)
+              ? hacksawAllowed[Math.floor(Math.random() * 16)]
+              : hacksawAllowed[16 + Math.floor(Math.random() * (hacksawAllowed.length - 16))];
+          }
+        }
+      }
+      return chosenSlot;
+    }
+
+    // When "Pick Random Slot" is clicked
+    document.getElementById('randomButton').addEventListener('click', () => {
+      let chosenSlot = getWeightedRandomSlot();
+      if (!chosenSlot) {
+        alert('No allowed slots loaded!');
+        return;
+      }
+      // Find the chosen slot’s unique ID in the displayed slider.
+      let chosenId = chosenSlot.dataset.slotId;
+      const sliderSlots = Array.from(document.getElementById('slider').children);
+      let finalIndex = sliderSlots.findIndex(el => el.dataset.slotId === chosenId);
+      if (finalIndex === -1) finalIndex = 0;
+      
+      document.getElementById('randomButton').disabled = true;
+      const slotWidth = 250;
+      const gap = 10;
+      const effectiveWidth = slotWidth + gap;
+      let baseTarget = window.innerWidth / 2 - (finalIndex * effectiveWidth + slotWidth / 2);
+      let cycleWidth = slots.length * effectiveWidth;
+      let desiredDistance = 7 * speed;
+      let extraLoops = Math.floor((desiredDistance - Math.abs(baseTarget)) / cycleWidth);
+      if (extraLoops < 1) extraLoops = 1;
+      let target = baseTarget - extraLoops * cycleWidth;
+      
+      let slider = document.getElementById('slider');
+      let distance = Math.abs(target - currentTranslate);
+      let computedDuration = distance / speed;
+      let duration = computedDuration > 7 ? 7 : computedDuration;
+      
+      slider.style.transition = `transform ${duration}s ease-in-out`;
+      slider.style.transform = `translateX(${target}px)`;
+      
+      setTimeout(() => {
+        slider.style.transition = 'none';
+        slider.style.transform = `translateX(${baseTarget}px)`;
+        currentTranslate = baseTarget;
+        sliderSlots.forEach(el => el.classList.remove('highlight'));
+        let chosenEl = sliderSlots.find(el => el.dataset.slotId === chosenId);
+        if (chosenEl) {
+          chosenEl.classList.add('highlight');
+          selectedSlot = chosenEl;
+        }
+        showModal(selectedSlot);
+      }, duration * 1000);
+    });
+
+    function showModal(slot) {
+      const modal = document.getElementById('modal');
+      const modalSlotImage = document.getElementById('modalSlotImage');
+      let modalSlotName = document.getElementById('modalSlotName');
+      const modalPlayButton = document.getElementById('modalPlayButton');
+      modalSlotImage.src = slot.querySelector('img').src;
+      modalSlotName.textContent = slot.dataset.name.replace(/Pragmatic\s*Play/gi, "").trim();
+      let originalLink = slot.dataset.link;
+      function updatePlayLink() {
+        const selectedDomain = domainSelector.value;
+        let updatedLink = originalLink.replace(/stake\.com/i, selectedDomain);
+        modalPlayButton.onclick = () => {
+          window.open(updatedLink, '_blank');
+          hideModal();
+        };
+      }
+      updatePlayLink();
+      domainSelector.onchange = updatePlayLink;
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 10);
+      document.getElementById('modalCancelButton').onclick = hideModal;
+    }
+
+    function hideModal() {
+      const modal = document.getElementById('modal');
+      modal.classList.remove('show');
+      setTimeout(() => {
+        modal.style.display = 'none';
+        document.getElementById('randomButton').disabled = false;
+        reshuffleSlots();
+      }, 300);
+    }
+
+    function reshuffleSlots() {
+      shuffleArray(slots);
+      updateSliderDisplay();
+    }
+
+    // Reload slots whenever the provider dropdown changes
+    document.getElementById('providerDropdown').addEventListener('change', loadSlots);
+
+    document.addEventListener('DOMContentLoaded', loadSlots);
+  </script>
+</body>
+</html>
