@@ -5,6 +5,9 @@
   <title>Slot Assistant</title>
   <style>
     /* Global Styles with Black-to-Grey Gradient */
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       text-align: center;
@@ -20,16 +23,40 @@
       letter-spacing: 1px;
       color: #fff;
     }
-    /* Provider Checkboxes */
-    #providerCheckboxes {
+    /* Dropdown Styles */
+    .dropdown {
+      position: relative;
+      display: inline-block;
       margin: 15px 0;
     }
-    #providerCheckboxes label {
-      font-size: 16px;
-      margin: 0 10px;
+    .dropbtn {
+      background: #222;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
       cursor: pointer;
     }
-    #providerCheckboxes input[type="checkbox"] {
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background: #fff;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 5px;
+      padding: 10px;
+      text-align: left;
+    }
+    .dropdown-content label {
+      display: block;
+      color: #333;
+      font-size: 16px;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+    .dropdown-content input[type="checkbox"] {
       margin-right: 5px;
       transform: scale(1.2);
       vertical-align: middle;
@@ -46,6 +73,7 @@
     #randomButton {
       background: #222;
       color: #fff;
+      margin: 15px;
     }
     #randomButton:hover {
       background: #444;
@@ -61,7 +89,18 @@
       background: #f9f9f9;
       border: 1px solid #ddd;
     }
-    /* Sliding Strip */
+    /* Center Selection Line */
+    #centerLine {
+      position: absolute;
+      width: 4px;
+      height: 100%;
+      background: #222;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0;
+      z-index: 2;
+    }
+    /* Slider */
     #slider {
       display: flex;
       align-items: center;
@@ -97,17 +136,6 @@
     .slot:hover img {
       transform: scale(1.05);
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    /* Center Selection Line */
-    #centerLine {
-      position: absolute;
-      width: 4px;
-      height: 100%;
-      background: #222;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 0;
-      z-index: 2;
     }
     /* Highlighted Slot */
     .highlight {
@@ -189,10 +217,13 @@
 <body>
   <h1>Slot Assistant</h1>
   
-  <!-- Provider Checkboxes -->
-  <div id="providerCheckboxes">
-    <label><input type="checkbox" id="pragmaticCheckbox" checked> Pragmatic Play</label>
-    <label><input type="checkbox" id="hacksawCheckbox" checked> Hacksaw Gaming</label>
+  <!-- Dropdown with Provider Checkboxes -->
+  <div class="dropdown">
+    <button class="dropbtn" id="providerDropdownBtn">Both Providers</button>
+    <div class="dropdown-content" id="providerDropdownContent">
+      <label><input type="checkbox" id="pragmaticCheckbox" checked> Pragmatic Play</label>
+      <label><input type="checkbox" id="hacksawCheckbox" checked> Hacksaw Gaming</label>
+    </div>
   </div>
   
   <button id="randomButton">Pick Random Slot</button>
@@ -255,6 +286,37 @@
       if (domain === "stake.com") option.selected = true;
       domainSelector.appendChild(option);
     });
+
+    // Toggle dropdown menu
+    document.getElementById("providerDropdownBtn").addEventListener("click", () => {
+      const content = document.getElementById("providerDropdownContent");
+      content.style.display = content.style.display === "block" ? "none" : "block";
+    });
+
+    // Update dropdown button text based on checkboxes
+    function updateDropdownButtonText() {
+      const pragmatic = document.getElementById("pragmaticCheckbox").checked;
+      const hacksaw = document.getElementById("hacksawCheckbox").checked;
+      const btn = document.getElementById("providerDropdownBtn");
+      if(pragmatic && hacksaw) {
+        btn.textContent = "Both Providers";
+      } else if(pragmatic) {
+        btn.textContent = "Pragmatic Play";
+      } else if(hacksaw) {
+        btn.textContent = "Hacksaw Gaming";
+      } else {
+        btn.textContent = "Select Providers";
+      }
+    }
+    document.getElementById("pragmaticCheckbox").addEventListener("change", () => {
+      updateDropdownButtonText();
+      loadSlots();
+    });
+    document.getElementById("hacksawCheckbox").addEventListener("change", () => {
+      updateDropdownButtonText();
+      loadSlots();
+    });
+    updateDropdownButtonText();
 
     // Fisher-Yates shuffle
     function shuffleArray(array) {
@@ -412,31 +474,36 @@
       return chosenSlot;
     }
 
-    // When "Pick Random Slot" is clicked
+    // When "Pick Random Slot" is clicked with improved centering logic
     document.getElementById('randomButton').addEventListener('click', () => {
       let chosenSlot = getWeightedRandomSlot();
       if (!chosenSlot) {
         alert('No allowed slots loaded!');
         return;
       }
-      // Look for the chosen slot’s unique ID only in the original (non-duplicated) slider set.
-      const sliderSlots = Array.from(document.getElementById('slider').children).slice(0, slots.length);
+      // Get original slider slots (non-duplicated)
+      const slider = document.getElementById('slider');
+      const sliderSlots = Array.from(slider.children).slice(0, slots.length);
       let chosenId = chosenSlot.dataset.slotId;
       let finalIndex = sliderSlots.findIndex(el => el.dataset.slotId === chosenId);
       if (finalIndex === -1) finalIndex = 0;
       
       document.getElementById('randomButton').disabled = true;
-      const slotWidth = 250;
-      const gap = 10;
-      const effectiveWidth = slotWidth + gap;
-      let baseTarget = window.innerWidth / 2 - (finalIndex * effectiveWidth + slotWidth / 2);
+      
+      const sliderContainer = document.getElementById('sliderContainer');
+      const containerCenter = sliderContainer.offsetWidth / 2;
+      const chosenSlotElement = sliderSlots[finalIndex];
+      const chosenSlotCenter = chosenSlotElement.offsetLeft + chosenSlotElement.offsetWidth / 2;
+      let baseTarget = containerCenter - chosenSlotCenter;
+      
+      // For spinning effect, add extra loops
+      const effectiveWidth = chosenSlotElement.offsetWidth + 10; // gap = 10
       let cycleWidth = slots.length * effectiveWidth;
       let desiredDistance = 7 * speed;
       let extraLoops = Math.floor((desiredDistance - Math.abs(baseTarget)) / cycleWidth);
       if (extraLoops < 1) extraLoops = 1;
       let target = baseTarget - extraLoops * cycleWidth;
       
-      let slider = document.getElementById('slider');
       let distance = Math.abs(target - currentTranslate);
       let computedDuration = distance / speed;
       let duration = computedDuration > 7 ? 7 : computedDuration;
@@ -496,10 +563,7 @@
       updateSliderDisplay();
     }
 
-    // Reload slots whenever the provider checkboxes change
-    document.getElementById('pragmaticCheckbox').addEventListener('change', loadSlots);
-    document.getElementById('hacksawCheckbox').addEventListener('change', loadSlots);
-
+    // Load slots on DOM content loaded
     document.addEventListener('DOMContentLoaded', loadSlots);
   </script>
 </body>
