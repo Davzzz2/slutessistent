@@ -100,7 +100,7 @@
     .modal-content .task-btn {
       background: #ccc;
       color: #333;
-      margin: 15px auto; /* centers the button */
+      margin: 15px auto;
       padding: 10px 20px;
       font-size: 16px;
       border: none;
@@ -200,7 +200,7 @@
     #modal.show {
       opacity: 1;
     }
-    /* Updated Modal Content with Increased Horizontal Size */
+    /* Modal Content with Increased Horizontal Size */
     .modal-content {
       background: #222;
       padding: 20px;
@@ -223,7 +223,7 @@
       border-radius: 5px;
       margin-bottom: 10px;
     }
-    /* Updated Domain Selector */
+    /* Domain Selector */
     .modal-content select {
       margin: 10px 0;
       padding: 5px 10px;
@@ -246,6 +246,22 @@
       <label><input type="checkbox" id="hacksawCheckbox" checked> Hacksaw Gaming</label>
       <label><input type="checkbox" id="nolimitCheckbox" checked> Nolimit City</label>
       <label><input type="checkbox" id="massiveCheckbox" checked> Massive Studios</label>
+      <label><input type="checkbox" id="twistCheckbox" checked> Twist Gaming</label>
+      <label><input type="checkbox" id="pushCheckbox" checked> Push Gaming</label>
+      <label><input type="checkbox" id="relaxCheckbox" checked> Relax Gaming</label>
+      <label><input type="checkbox" id="playngoCheckbox" checked> Play'n Go</label>
+      <label><input type="checkbox" id="titanCheckbox" checked> Titan Gaming</label>
+      <label><input type="checkbox" id="avataruxCheckbox" checked> AvatarUX Studios</label>
+      <label><input type="checkbox" id="backseatCheckbox" checked> Backseat Gaming</label>
+      <label><input type="checkbox" id="octoplayCheckbox" checked> Octoplay</label>
+      <label><input type="checkbox" id="peterCheckbox" checked> Peter & Sons</label>
+      <label><input type="checkbox" id="elkCheckbox" checked> ELK Studios</label>
+      <label><input type="checkbox" id="thunderCheckbox" checked> Thunderkick</label>
+      <label><input type="checkbox" id="popiCheckbox" checked> Popiplay</label>
+      <label><input type="checkbox" id="bgamingCheckbox" checked> BGaming</label>
+      <label><input type="checkbox" id="printCheckbox" checked> Print Studios</label>
+      <label><input type="checkbox" id="bullsharkCheckbox" checked> Bullshark Games</label>
+      <label><input type="checkbox" id="netentCheckbox" checked> Netent</label>
     </div>
   </div>
   
@@ -269,23 +285,39 @@
         <button class="play-btn" id="modalPlayButton">Play Now</button>
         <button class="cancel-btn" id="modalCancelButton">Cancel</button>
       </div>
-      <!-- Generate Random Task Button centered -->
       <button class="task-btn" id="modalTaskButton">Generate Random Task</button>
       <p id="taskDisplay"></p>
     </div>
   </div>
   
   <script>
-    // Global arrays to hold slots for each provider
+    // Arrays for each provider
     let pragmaticSlots = [];
     let hacksawSlots = [];
     let nolimitSlots = [];
     let massiveSlots = [];
+    let twistSlots = [];
+    let pushSlots = [];
+    let relaxSlots = [];
+    let playngoSlots = [];
+    let titanSlots = [];
+    let avataruxSlots = [];
+    let backseatSlots = [];
+    let octoplaySlots = [];
+    let peterSlots = [];
+    let elkSlots = [];
+    let thunderSlots = [];
+    let popiSlots = [];
+    let bgamingSlots = [];
+    let printSlots = [];
+    let bullsharkSlots = [];
+    let netentSlots = [];
     let slots = []; // Combined array for display
+
     let selectedSlot = null;
-    let currentTranslate = 0; // Starting translate value
+    let currentTranslate = 0;
     const speed = 2000; // pixels per second
-    let slotIdCounter = 0; // To assign unique IDs
+    let slotIdCounter = 0;
 
     // Domain list (Stake.com is default)
     const domains = [
@@ -307,7 +339,7 @@
       "stake.krd"
     ];
 
-    // Populate domain selector in modal
+    // Populate domain selector
     const domainSelector = document.getElementById('domainSelector');
     domains.forEach(domain => {
       const option = document.createElement('option');
@@ -323,25 +355,16 @@
       content.style.display = content.style.display === "block" ? "none" : "block";
     });
 
-    // Always display "Select Providers" on the dropdown button
+    // Always show "Select Providers"
     function updateDropdownButtonText() {
       document.getElementById("providerDropdownBtn").textContent = "Select Providers";
     }
-    document.getElementById("pragmaticCheckbox").addEventListener("change", () => {
-      updateDropdownButtonText();
-      loadSlots();
-    });
-    document.getElementById("hacksawCheckbox").addEventListener("change", () => {
-      updateDropdownButtonText();
-      loadSlots();
-    });
-    document.getElementById("nolimitCheckbox").addEventListener("change", () => {
-      updateDropdownButtonText();
-      loadSlots();
-    });
-    document.getElementById("massiveCheckbox").addEventListener("change", () => {
-      updateDropdownButtonText();
-      loadSlots();
+    const checkboxIds = ["pragmaticCheckbox", "hacksawCheckbox", "nolimitCheckbox", "massiveCheckbox", "twistCheckbox", "pushCheckbox", "relaxCheckbox", "playngoCheckbox", "titanCheckbox", "avataruxCheckbox", "backseatCheckbox", "octoplayCheckbox", "peterCheckbox", "elkCheckbox", "thunderCheckbox", "popiCheckbox", "bgamingCheckbox", "printCheckbox", "bullsharkCheckbox", "netentCheckbox"];
+    checkboxIds.forEach(id => {
+      document.getElementById(id).addEventListener("change", () => {
+        updateDropdownButtonText();
+        loadSlots();
+      });
     });
     updateDropdownButtonText();
 
@@ -353,29 +376,22 @@
       }
     }
 
-    // Update slider display with infinite loop duplication.
+    // Always loop all slots by duplicating them once extra.
     function updateSliderDisplay() {
       const slider = document.getElementById('slider');
       slider.innerHTML = '';
-      // Append original slots
       slots.forEach(slot => slider.appendChild(slot));
-
-      // If only Massive Studios slots are selected, duplicate more times.
-      const isOnlyMassive = slots.length > 0 && slots.every(slot => slot.dataset.provider === "massive");
-      const cloneCount = isOnlyMassive ? 3 : 1;
-      
-      for (let i = 0; i < cloneCount; i++) {
-        slots.forEach(slot => {
-          let clone = slot.cloneNode(true);
-          slider.appendChild(clone);
-        });
-      }
+      // Duplicate slots once
+      slots.forEach(slot => {
+        let clone = slot.cloneNode(true);
+        slider.appendChild(clone);
+      });
       currentTranslate = 0;
       slider.style.transition = 'none';
       slider.style.transform = `translateX(0px)`;
     }
 
-    // Fetch slots from a given URL and assign provider and unique ID
+    // Fetch slots for a given provider from its file.
     function fetchSlots(url, provider) {
       return fetch(url)
         .then(response => response.text())
@@ -383,7 +399,7 @@
           let lines = data.split(/\r?\n/).filter(line => line.trim() !== '');
           let resultSlots = [];
           lines.forEach(line => {
-            // CSV format: "slotName","imageUrl","slotLink"
+            // Expected CSV format: "slotName","imageUrl","slotLink"
             const parts = line.match(/"([^"]+)","([^"]+)","([^"]+)"/);
             if (!parts) return;
             const slotName = parts[1].trim();
@@ -405,16 +421,50 @@
         });
     }
 
-    // Load slots based on checkbox selection
+    // Load slots from all selected providers.
     function loadSlots() {
       const pragmaticChecked = document.getElementById('pragmaticCheckbox').checked;
       const hacksawChecked = document.getElementById('hacksawCheckbox').checked;
       const nolimitChecked = document.getElementById('nolimitCheckbox').checked;
       const massiveChecked = document.getElementById('massiveCheckbox').checked;
+      const twistChecked = document.getElementById('twistCheckbox').checked;
+      const pushChecked = document.getElementById('pushCheckbox').checked;
+      const relaxChecked = document.getElementById('relaxCheckbox').checked;
+      const playngoChecked = document.getElementById('playngoCheckbox').checked;
+      const titanChecked = document.getElementById('titanCheckbox').checked;
+      const avataruxChecked = document.getElementById('avataruxCheckbox').checked;
+      const backseatChecked = document.getElementById('backseatCheckbox').checked;
+      const octoplayChecked = document.getElementById('octoplayCheckbox').checked;
+      const peterChecked = document.getElementById('peterCheckbox').checked;
+      const elkChecked = document.getElementById('elkCheckbox').checked;
+      const thunderChecked = document.getElementById('thunderCheckbox').checked;
+      const popiChecked = document.getElementById('popiCheckbox').checked;
+      const bgamingChecked = document.getElementById('bgamingCheckbox').checked;
+      const printChecked = document.getElementById('printCheckbox').checked;
+      const bullsharkChecked = document.getElementById('bullsharkCheckbox').checked;
+      const netentChecked = document.getElementById('netentCheckbox').checked;
+
+      // Reset all arrays
       pragmaticSlots = [];
       hacksawSlots = [];
       nolimitSlots = [];
       massiveSlots = [];
+      twistSlots = [];
+      pushSlots = [];
+      relaxSlots = [];
+      playngoSlots = [];
+      titanSlots = [];
+      avataruxSlots = [];
+      backseatSlots = [];
+      octoplaySlots = [];
+      peterSlots = [];
+      elkSlots = [];
+      thunderSlots = [];
+      popiSlots = [];
+      bgamingSlots = [];
+      printSlots = [];
+      bullsharkSlots = [];
+      netentSlots = [];
       slots = [];
       let promises = [];
       if (pragmaticChecked) {
@@ -429,14 +479,82 @@
       if (massiveChecked) {
         promises.push(fetchSlots('massive.txt', 'massive').then(arr => { massiveSlots = arr; }));
       }
+      if (twistChecked) {
+        promises.push(fetchSlots('twist.txt', 'twist').then(arr => { twistSlots = arr; }));
+      }
+      if (pushChecked) {
+        promises.push(fetchSlots('push.txt', 'push').then(arr => { pushSlots = arr; }));
+      }
+      if (relaxChecked) {
+        promises.push(fetchSlots('Relax.txt', 'relax').then(arr => { relaxSlots = arr; }));
+      }
+      if (playngoChecked) {
+        promises.push(fetchSlots('playngo.txt', 'playngo').then(arr => { playngoSlots = arr; }));
+      }
+      if (titanChecked) {
+        promises.push(fetchSlots('titan.txt', 'titan').then(arr => { titanSlots = arr; }));
+      }
+      if (avataruxChecked) {
+        promises.push(fetchSlots('AvatarUX.txt', 'avatarux').then(arr => { avataruxSlots = arr; }));
+      }
+      if (backseatChecked) {
+        promises.push(fetchSlots('backseat.txt', 'backseat').then(arr => { backseatSlots = arr; }));
+      }
+      if (octoplayChecked) {
+        promises.push(fetchSlots('octoplay.txt', 'octoplay').then(arr => { octoplaySlots = arr; }));
+      }
+      if (peterChecked) {
+        promises.push(fetchSlots('peter.txt', 'peter').then(arr => { peterSlots = arr; }));
+      }
+      if (elkChecked) {
+        promises.push(fetchSlots('elk.txt', 'elk').then(arr => { elkSlots = arr; }));
+      }
+      if (thunderChecked) {
+        promises.push(fetchSlots('thunder.txt', 'thunder').then(arr => { thunderSlots = arr; }));
+      }
+      if (popiChecked) {
+        promises.push(fetchSlots('popi.txt', 'popi').then(arr => { popiSlots = arr; }));
+      }
+      if (bgamingChecked) {
+        promises.push(fetchSlots('bgaming.txt', 'bgaming').then(arr => { bgamingSlots = arr; }));
+      }
+      if (printChecked) {
+        promises.push(fetchSlots('print.txt', 'print').then(arr => { printSlots = arr; }));
+      }
+      if (bullsharkChecked) {
+        promises.push(fetchSlots('bullshark.txt', 'bullshark').then(arr => { bullsharkSlots = arr; }));
+      }
+      if (netentChecked) {
+        promises.push(fetchSlots('netent.txt', 'netent').then(arr => { netentSlots = arr; }));
+      }
       Promise.all(promises)
         .then(() => {
-          if (pragmaticChecked || hacksawChecked || nolimitChecked || massiveChecked) {
+          if (pragmaticChecked || hacksawChecked || nolimitChecked || massiveChecked ||
+              twistChecked || pushChecked || relaxChecked || playngoChecked || titanChecked ||
+              avataruxChecked || backseatChecked || octoplayChecked || peterChecked ||
+              elkChecked || thunderChecked || popiChecked || bgamingChecked || printChecked ||
+              bullsharkChecked || netentChecked) {
             slots = [];
-            if(pragmaticChecked) slots = slots.concat(pragmaticSlots);
-            if(hacksawChecked) slots = slots.concat(hacksawSlots);
-            if(nolimitChecked) slots = slots.concat(nolimitSlots);
-            if(massiveChecked) slots = slots.concat(massiveSlots);
+            if (pragmaticChecked) slots = slots.concat(pragmaticSlots);
+            if (hacksawChecked) slots = slots.concat(hacksawSlots);
+            if (nolimitChecked) slots = slots.concat(nolimitSlots);
+            if (massiveChecked) slots = slots.concat(massiveSlots);
+            if (twistChecked) slots = slots.concat(twistSlots);
+            if (pushChecked) slots = slots.concat(pushSlots);
+            if (relaxChecked) slots = slots.concat(relaxSlots);
+            if (playngoChecked) slots = slots.concat(playngoSlots);
+            if (titanChecked) slots = slots.concat(titanSlots);
+            if (avataruxChecked) slots = slots.concat(avataruxSlots);
+            if (backseatChecked) slots = slots.concat(backseatSlots);
+            if (octoplayChecked) slots = slots.concat(octoplaySlots);
+            if (peterChecked) slots = slots.concat(peterSlots);
+            if (elkChecked) slots = slots.concat(elkSlots);
+            if (thunderChecked) slots = slots.concat(thunderSlots);
+            if (popiChecked) slots = slots.concat(popiSlots);
+            if (bgamingChecked) slots = slots.concat(bgamingSlots);
+            if (printChecked) slots = slots.concat(printSlots);
+            if (bullsharkChecked) slots = slots.concat(bullsharkSlots);
+            if (netentChecked) slots = slots.concat(netentSlots);
           } else {
             slots = [];
             alert('Please select at least one provider.');
@@ -447,7 +565,7 @@
         .catch(err => console.error("Error loading slots:", err));
     }
 
-    // Helper function to get weighted random slot from allowed array with threshold
+    // Helper: Get weighted random slot from allowed array
     function getRandomFromAllowed(allowed, threshold) {
       if (allowed.length <= threshold) {
         return allowed[Math.floor(Math.random() * allowed.length)];
@@ -458,73 +576,165 @@
       }
     }
 
-    // Weighted random selection based on checkboxes and exclusion rule
+    // Weighted random selection from all selected providers.
     function getWeightedRandomSlot() {
-      const pragmaticChecked = document.getElementById('pragmaticCheckbox').checked;
-      const hacksawChecked = document.getElementById('hacksawCheckbox').checked;
-      const nolimitChecked = document.getElementById('nolimitCheckbox').checked;
-      const massiveChecked = document.getElementById('massiveCheckbox').checked;
-      let selectedProviders = [];
-      
-      if (pragmaticChecked) {
+      const selectedProviders = [];
+      // Use provider-specific thresholds:
+      if (document.getElementById('pragmaticCheckbox').checked) {
         let allowed = pragmaticSlots.filter(slot => {
           let name = slot.dataset.name.toLowerCase();
           return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
         });
-        if (allowed.length > 0) {
-          selectedProviders.push({ provider: "pragmatic", allowed: allowed, threshold: 30 });
-        }
+        if (allowed.length > 0) selectedProviders.push({ provider: "pragmatic", allowed: allowed, threshold: 30 });
       }
-      if (hacksawChecked) {
+      if (document.getElementById('hacksawCheckbox').checked) {
         let allowed = hacksawSlots.filter(slot => {
           let name = slot.dataset.name.toLowerCase();
           return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
         });
-        if (allowed.length > 0) {
-          selectedProviders.push({ provider: "hacksaw", allowed: allowed, threshold: 16 });
-        }
+        if (allowed.length > 0) selectedProviders.push({ provider: "hacksaw", allowed: allowed, threshold: 16 });
       }
-      if (nolimitChecked) {
+      if (document.getElementById('nolimitCheckbox').checked) {
         let allowed = nolimitSlots.filter(slot => {
           let name = slot.dataset.name.toLowerCase();
           return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
         });
-        if (allowed.length > 0) {
-          selectedProviders.push({ provider: "nolimit", allowed: allowed, threshold: 20 });
-        }
+        if (allowed.length > 0) selectedProviders.push({ provider: "nolimit", allowed: allowed, threshold: 20 });
       }
-      if (massiveChecked) {
+      if (document.getElementById('massiveCheckbox').checked) {
         let allowed = massiveSlots.filter(slot => {
           let name = slot.dataset.name.toLowerCase();
           return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
         });
-        if (allowed.length > 0) {
-          selectedProviders.push({ provider: "massive", allowed: allowed, threshold: 20 });
-        }
+        if (allowed.length > 0) selectedProviders.push({ provider: "massive", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('twistCheckbox').checked) {
+        let allowed = twistSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "twist", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('pushCheckbox').checked) {
+        let allowed = pushSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "push", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('relaxCheckbox').checked) {
+        let allowed = relaxSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "relax", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('playngoCheckbox').checked) {
+        let allowed = playngoSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "playngo", allowed: allowed, threshold: 30 });
+      }
+      if (document.getElementById('titanCheckbox').checked) {
+        let allowed = titanSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "titan", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('avataruxCheckbox').checked) {
+        let allowed = avataruxSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "avatarux", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('backseatCheckbox').checked) {
+        let allowed = backseatSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "backseat", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('octoplayCheckbox').checked) {
+        let allowed = octoplaySlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "octoplay", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('peterCheckbox').checked) {
+        let allowed = peterSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "peter", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('elkCheckbox').checked) {
+        let allowed = elkSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "elk", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('thunderCheckbox').checked) {
+        let allowed = thunderSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "thunder", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('popiCheckbox').checked) {
+        let allowed = popiSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "popi", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('bgamingCheckbox').checked) {
+        let allowed = bgamingSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "bgaming", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('printCheckbox').checked) {
+        let allowed = printSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "print", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('bullsharkCheckbox').checked) {
+        let allowed = bullsharkSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "bullshark", allowed: allowed, threshold: 20 });
+      }
+      if (document.getElementById('netentCheckbox').checked) {
+        let allowed = netentSlots.filter(slot => {
+          let name = slot.dataset.name.toLowerCase();
+          return !(name.includes('bacarrat') || name.includes('roulette') || name.includes('blackjack'));
+        });
+        if (allowed.length > 0) selectedProviders.push({ provider: "netent", allowed: allowed, threshold: 20 });
       }
       
-      if (selectedProviders.length === 0) {
-        return null;
-      }
-      
-      let chosenProvider;
-      if (selectedProviders.length === 1) {
-        chosenProvider = selectedProviders[0];
-      } else {
-        chosenProvider = selectedProviders[Math.floor(Math.random() * selectedProviders.length)];
-      }
-      
+      if (selectedProviders.length === 0) return null;
+      let chosenProvider = (selectedProviders.length === 1)
+        ? selectedProviders[0]
+        : selectedProviders[Math.floor(Math.random() * selectedProviders.length)];
       return getRandomFromAllowed(chosenProvider.allowed, chosenProvider.threshold);
     }
 
-    // When "Pick Random Slot" is clicked with improved centering logic
+    // When "Pick Random Slot" is clicked, center the chosen slot and show modal.
     document.getElementById('randomButton').addEventListener('click', () => {
       let chosenSlot = getWeightedRandomSlot();
       if (!chosenSlot) {
         alert('No allowed slots loaded!');
         return;
       }
-      // Get original slider slots (non-duplicated)
       const slider = document.getElementById('slider');
       const sliderSlots = Array.from(slider.children).slice(0, slots.length);
       let chosenId = chosenSlot.dataset.slotId;
@@ -539,8 +749,7 @@
       const chosenSlotCenter = chosenSlotElement.offsetLeft + chosenSlotElement.offsetWidth / 2;
       let baseTarget = containerCenter - chosenSlotCenter;
       
-      // For spinning effect, add extra loops
-      const effectiveWidth = chosenSlotElement.offsetWidth + 10; // gap = 10
+      const effectiveWidth = chosenSlotElement.offsetWidth + 10;
       let cycleWidth = slots.length * effectiveWidth;
       let desiredDistance = 7 * speed;
       let extraLoops = Math.floor((desiredDistance - Math.abs(baseTarget)) / cycleWidth);
@@ -568,6 +777,7 @@
       }, duration * 1000);
     });
 
+    // Show the modal with the chosen slot.
     function showModal(slot) {
       const modal = document.getElementById('modal');
       const modalSlotImage = document.getElementById('modalSlotImage');
@@ -575,11 +785,27 @@
       const modalPlayButton = document.getElementById('modalPlayButton');
       modalSlotImage.src = slot.querySelector('img').src;
       
-      // Automatically remove the provider's display name from the slot name
+      // Map of provider IDs to regex for automatic removal
       const providerRemovalMap = {
         pragmatic: /Pragmatic\s*Play/gi,
         nolimit: /Nolimit\s*City/gi,
-        massive: /Massive\s*Studios/gi
+        massive: /Massive\s*Studios/gi,
+        twist: /Twist\s*Gaming/gi,
+        push: /Push\s*Gaming/gi,
+        relax: /Relax\s*Gaming/gi,
+        playngo: /Play'?n\s*Go/gi,
+        titan: /Titan\s*Gaming/gi,
+        avatarux: /AvatarUX\s*Studios/gi,
+        backseat: /Backseat\s*Gaming/gi,
+        octoplay: /Octoplay/gi,
+        peter: /Peter\s*&\s*Sons/gi,
+        elk: /ELK\s*Studios/gi,
+        thunder: /Thunderkick/gi,
+        popi: /Popiplay/gi,
+        bgaming: /BGaming/gi,
+        print: /Print\s*Studios/gi,
+        bullshark: /Bullshark\s*Games/gi,
+        netent: /Netent/gi
       };
       let displayName = slot.dataset.name.trim();
       if (providerRemovalMap[slot.dataset.provider]) {
@@ -602,7 +828,7 @@
       setTimeout(() => modal.classList.add('show'), 10);
       document.getElementById('modalCancelButton').onclick = hideModal;
       
-      // Random Task Button functionality
+      // Generate Random Task functionality
       document.getElementById('modalTaskButton').onclick = function() {
         const tasks = [
           "do 30 spins",
@@ -635,7 +861,6 @@
       updateSliderDisplay();
     }
 
-    // Load slots on DOM content loaded
     document.addEventListener('DOMContentLoaded', loadSlots);
   </script>
 </body>
