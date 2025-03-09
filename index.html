@@ -381,7 +381,7 @@
       const slider = document.getElementById('slider');
       slider.innerHTML = '';
       slots.forEach(slot => slider.appendChild(slot));
-      // Duplicate slots once
+      // Duplicate slots once for looping effect.
       slots.forEach(slot => {
         let clone = slot.cloneNode(true);
         slider.appendChild(clone);
@@ -535,26 +535,26 @@
               elkChecked || thunderChecked || popiChecked || bgamingChecked || printChecked ||
               bullsharkChecked || netentChecked) {
             slots = [];
-            if (pragmaticChecked) slots = slots.concat(pragmaticSlots);
-            if (hacksawChecked) slots = slots.concat(hacksawSlots);
-            if (nolimitChecked) slots = slots.concat(nolimitSlots);
-            if (massiveChecked) slots = slots.concat(massiveSlots);
-            if (twistChecked) slots = slots.concat(twistSlots);
-            if (pushChecked) slots = slots.concat(pushSlots);
-            if (relaxChecked) slots = slots.concat(relaxSlots);
-            if (playngoChecked) slots = slots.concat(playngoSlots);
-            if (titanChecked) slots = slots.concat(titanSlots);
-            if (avataruxChecked) slots = slots.concat(avataruxSlots);
-            if (backseatChecked) slots = slots.concat(backseatSlots);
-            if (octoplayChecked) slots = slots.concat(octoplaySlots);
-            if (peterChecked) slots = slots.concat(peterSlots);
-            if (elkChecked) slots = slots.concat(elkSlots);
-            if (thunderChecked) slots = slots.concat(thunderSlots);
-            if (popiChecked) slots = slots.concat(popiSlots);
-            if (bgamingChecked) slots = slots.concat(bgamingSlots);
-            if (printChecked) slots = slots.concat(printSlots);
-            if (bullsharkChecked) slots = slots.concat(bullsharkSlots);
-            if (netentChecked) slots = slots.concat(netentSlots);
+            if(pragmaticChecked) slots = slots.concat(pragmaticSlots);
+            if(hacksawChecked) slots = slots.concat(hacksawSlots);
+            if(nolimitChecked) slots = slots.concat(nolimitSlots);
+            if(massiveChecked) slots = slots.concat(massiveSlots);
+            if(twistChecked) slots = slots.concat(twistSlots);
+            if(pushChecked) slots = slots.concat(pushSlots);
+            if(relaxChecked) slots = slots.concat(relaxSlots);
+            if(playngoChecked) slots = slots.concat(playngoSlots);
+            if(titanChecked) slots = slots.concat(titanSlots);
+            if(avataruxChecked) slots = slots.concat(avataruxSlots);
+            if(backseatChecked) slots = slots.concat(backseatSlots);
+            if(octoplayChecked) slots = slots.concat(octoplaySlots);
+            if(peterChecked) slots = slots.concat(peterSlots);
+            if(elkChecked) slots = slots.concat(elkSlots);
+            if(thunderChecked) slots = slots.concat(thunderSlots);
+            if(popiChecked) slots = slots.concat(popiSlots);
+            if(bgamingChecked) slots = slots.concat(bgamingSlots);
+            if(printChecked) slots = slots.concat(printSlots);
+            if(bullsharkChecked) slots = slots.concat(bullsharkSlots);
+            if(netentChecked) slots = slots.concat(netentSlots);
           } else {
             slots = [];
             alert('Please select at least one provider.');
@@ -565,7 +565,7 @@
         .catch(err => console.error("Error loading slots:", err));
     }
 
-    // Helper: Get weighted random slot from allowed array
+    // Helper: Get weighted random slot from allowed array.
     function getRandomFromAllowed(allowed, threshold) {
       if (allowed.length <= threshold) {
         return allowed[Math.floor(Math.random() * allowed.length)];
@@ -576,10 +576,9 @@
       }
     }
 
-    // Weighted random selection from all selected providers.
+    // Weighted random selection from selected providers.
     function getWeightedRandomSlot() {
       const selectedProviders = [];
-      // Use provider-specific thresholds:
       if (document.getElementById('pragmaticCheckbox').checked) {
         let allowed = pragmaticSlots.filter(slot => {
           let name = slot.dataset.name.toLowerCase();
@@ -777,7 +776,7 @@
       }, duration * 1000);
     });
 
-    // Show the modal with the chosen slot.
+    // Show modal with chosen slot; automatically remove any provider name.
     function showModal(slot) {
       const modal = document.getElementById('modal');
       const modalSlotImage = document.getElementById('modalSlotImage');
@@ -785,7 +784,7 @@
       const modalPlayButton = document.getElementById('modalPlayButton');
       modalSlotImage.src = slot.querySelector('img').src;
       
-      // Map of provider IDs to regex for automatic removal
+      // Remove any known provider names from the slot name.
       const providerRemovalMap = {
         pragmatic: /Pragmatic\s*Play/gi,
         nolimit: /Nolimit\s*City/gi,
@@ -808,9 +807,9 @@
         netent: /Netent/gi
       };
       let displayName = slot.dataset.name.trim();
-      if (providerRemovalMap[slot.dataset.provider]) {
-        displayName = displayName.replace(providerRemovalMap[slot.dataset.provider], "").trim();
-      }
+      Object.values(providerRemovalMap).forEach(regex => {
+        displayName = displayName.replace(regex, "").trim();
+      });
       modalSlotName.textContent = displayName;
       
       let originalLink = slot.dataset.link;
@@ -828,7 +827,7 @@
       setTimeout(() => modal.classList.add('show'), 10);
       document.getElementById('modalCancelButton').onclick = hideModal;
       
-      // Generate Random Task functionality
+      // Random Task functionality
       document.getElementById('modalTaskButton').onclick = function() {
         const tasks = [
           "do 30 spins",
