@@ -283,7 +283,7 @@
       <label><input type="checkbox" id="relaxCheckbox" checked> Relax Gaming</label>
       <label><input type="checkbox" id="playngoCheckbox" checked> Play'n Go</label>
       <label><input type="checkbox" id="titanCheckbox" checked> Titan Gaming</label>
-      <label><input type="checkbox" id="avataruxCheckbox" checked> AvatarUX Studios</label>
+      <label><input type="checkbox" id="avataruxCheckbox" checked> Avatar UX Studios</label>
       <label><input type="checkbox" id="backseatCheckbox" checked> Backseat Gaming</label>
       <label><input type="checkbox" id="octoplayCheckbox" checked> Octoplay</label>
       <label><input type="checkbox" id="peterCheckbox" checked> Peter &amp; Sons</label>
@@ -425,8 +425,10 @@
     function updateSliderDisplay() {
       const slider = document.getElementById('slider');
       slider.innerHTML = '';
-      // If only one slot, clone it more times to ensure a seamless loop.
-      let repeatCount = slots.length < 2 ? 10 : 3;
+      // Check if all slots come from bullshark, massive, or titan providers.
+      const specialProviders = ["bullshark", "massive", "titan"];
+      let allSpecial = slots.length > 0 && slots.every(slot => specialProviders.includes(slot.dataset.provider));
+      let repeatCount = (slots.length < 2 || allSpecial) ? 10 : 3;
       for (let i = 0; i < repeatCount; i++) {
         slots.forEach(slot => {
           slider.appendChild(i === 0 ? slot : slot.cloneNode(true));
@@ -831,6 +833,7 @@
       modalSlotImage.src = slot.querySelector('img').src;
       
       // Remove provider names from the slot name.
+      // The removal map now uses a regex for "Avatar UX" (with or without space).
       const providerRemovalMap = {
         pragmatic: /Pragmatic\s*Play/gi,
         hacksaw: /Hacksaw\s*Gaming/gi,
@@ -841,7 +844,7 @@
         relax: /Relax\s*Gaming/gi,
         playngo: /Play'?n\s*Go/gi,
         titan: /Titan\s*Gaming/gi,
-        avatarux: /AvatarUX\s*Studios/gi,
+        avatarux: /Avatar\s*UX\s*Studios/gi,
         backseat: /Backseat\s*Gaming/gi,
         octoplay: /Octoplay/gi,
         peter: /Peter\s*&\s*Sons/gi,
