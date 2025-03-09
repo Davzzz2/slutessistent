@@ -901,13 +901,18 @@
        // Generate Random Task functionality.
        document.getElementById('modalTaskButton').onclick = function() {
          const tasks = [
+           "do 20 spins",
+           "do 25 spins",
            "do 30 spins",
            "do 50 spins",
+           "do 75 spins",
            "do 100 spins",
+           "do 120 spins",
+           "do 150 spins",
+           "do 200 spins",
            "Buy a Bonus",
-           "do 10 feature spins",
-           "do 20 feature spins",
-           "do 30 feature spins"
+           "Buy 2 Bonuses",
+           "Buy 3 Bonuses",
          ];
          const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
          document.getElementById('taskDisplay').textContent = randomTask;
