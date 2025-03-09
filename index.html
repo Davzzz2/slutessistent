@@ -421,6 +421,25 @@
       }
     }
 
+    // Preload images for all slots and return a promise that resolves when all are loaded.
+    function preloadImages(slots) {
+      let promises = [];
+      slots.forEach(slot => {
+        let img = slot.querySelector('img');
+        if (img) {
+          promises.push(new Promise((resolve) => {
+            if (img.complete) {
+              resolve();
+            } else {
+              img.onload = resolve;
+              img.onerror = resolve;
+            }
+          }));
+        }
+      });
+      return Promise.all(promises);
+    }
+
     // Always loop all slots by duplicating them enough times.
     function updateSliderDisplay() {
       const slider = document.getElementById('slider');
@@ -608,7 +627,10 @@
             alert('Please select at least one provider.');
           }
           shuffleArray(slots);
-          updateSliderDisplay();
+          // Preload all images before updating the slider display.
+          preloadImages(slots).then(() => {
+            updateSliderDisplay();
+          });
         })
         .catch(err => console.error("Error loading slots:", err));
     }
@@ -833,7 +855,7 @@
       modalSlotImage.src = slot.querySelector('img').src;
       
       // Remove provider names from the slot name.
-      // The removal map now uses a regex for "Avatar UX" (with or without space).
+      // The regex for avatarux now catches both "Avatar UX Studios" and "AvatarUX" (with optional "Studios")
       const providerRemovalMap = {
         pragmatic: /Pragmatic\s*Play/gi,
         hacksaw: /Hacksaw\s*Gaming/gi,
