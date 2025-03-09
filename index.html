@@ -18,27 +18,26 @@
       color: #f0f0f0;
     }
     /* Back Button Styles */
-#backButton {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  background: transparent;
-  color: #fff;
-  font-size: 28px;
-  cursor: pointer;
-  z-index: 1001;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#backButton:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
+    #backButton {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: transparent;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #backButton:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
     h1 {
       margin-top: 20px;
       font-size: 2.5em;
@@ -245,15 +244,22 @@
       border-radius: 5px;
       margin-bottom: 10px;
     }
-    /* Domain Selector */
-    .modal-content select {
-      margin: 10px 0;
+    /* Custom Domain Selector Styles */
+    #domainSelector {
       padding: 5px 10px;
       font-size: 16px;
       border-radius: 5px;
       border: 1px solid #fff;
       background: #444;
       color: #fff;
+      /* Always show the placeholder text */
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'10'%20viewBox%3D'0%200%2010%2010'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpolygon%20points%3D'0,0%2010,0%205,10'%20fill%3D'%23fff'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -302,9 +308,8 @@
     <div class="modal-content">
       <img id="modalSlotImage" src="" alt="Slot Image">
       <h2 id="modalSlotName"></h2>
-      <select id="domainSelector">
-         <!-- Domain options will be added by JavaScript -->
-      </select>
+      <!-- Domain Selector Dropdown -->
+      <select id="domainSelector"></select>
       <br>
       <div class="modal-buttons">
         <button class="play-btn" id="modalPlayButton">Play Now</button>
@@ -341,10 +346,10 @@
 
     let selectedSlot = null;
     let currentTranslate = 0;
-    const speed = 2000; // pixels per second
+    const speed = 2000; // pixels per second (not used now for duration)
     let slotIdCounter = 0;
 
-    // Domain list (Stake.com is default)
+    // Domain list (no default selection)
     const domains = [
       "stake.com",
       "stake.ac",
@@ -364,17 +369,33 @@
       "stake.krd"
     ];
 
-    // Populate domain selector
+    // Populate domain selector with a default "Select Domain" option
     const domainSelector = document.getElementById('domainSelector');
+    const defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "Select Domain";
+    defaultOption.selected = true;
+    domainSelector.appendChild(defaultOption);
     domains.forEach(domain => {
       const option = document.createElement('option');
       option.value = domain;
       option.textContent = domain;
-      if (domain === "stake.com") option.selected = true;
       domainSelector.appendChild(option);
     });
 
-    // Toggle dropdown menu
+    // Store selected domain and disable further changes once set.
+    let selectedDomain = "";
+    domainSelector.addEventListener("change", function() {
+      if (this.value !== "") {
+         selectedDomain = this.value;
+         // Disable further changes
+         this.disabled = true;
+         // Reset displayed value to default (always shows "Select Domain")
+         this.value = "";
+      }
+    });
+
+    // Toggle dropdown menu for providers
     document.getElementById("providerDropdownBtn").addEventListener("click", () => {
       const content = document.getElementById("providerDropdownContent");
       content.style.display = content.style.display === "block" ? "none" : "block";
@@ -780,9 +801,8 @@
       if (extraLoops < 1) extraLoops = 1;
       let target = baseTarget - extraLoops * cycleWidth;
       
-      let distance = Math.abs(target - currentTranslate);
-      let computedDuration = distance / speed;
-      let duration = computedDuration > 7 ? 7 : computedDuration;
+      // Fixed slide duration of 5 seconds.
+      let duration = 5;
       
       slider.style.transition = `transform ${duration}s ease-in-out`;
       slider.style.transform = `translateX(${target}px)`;
@@ -839,15 +859,14 @@
       
       let originalLink = slot.dataset.link;
       function updatePlayLink() {
-        const selectedDomain = domainSelector.value;
-        let updatedLink = originalLink.replace(/stake\.com/i, selectedDomain);
-        modalPlayButton.onclick = () => {
-          window.open(updatedLink, '_blank');
-          hideModal();
-        };
+         let domainToUse = selectedDomain || "stake.com";
+         let updatedLink = originalLink.replace(/stake\.com/i, domainToUse);
+         modalPlayButton.onclick = () => {
+           window.open(updatedLink, '_blank');
+           hideModal();
+         };
       }
       updatePlayLink();
-      domainSelector.onchange = updatePlayLink;
       modal.style.display = 'flex';
       setTimeout(() => modal.classList.add('show'), 10);
       document.getElementById('modalCancelButton').onclick = hideModal;
@@ -858,8 +877,7 @@
           "do 30 spins",
           "do 50 spins",
           "do 100 spins",
-          "Buy a Super Bonus",
-          "Buy a Normal bonus",
+          "Buy a Bonus",
           "do 10 feature spins",
           "do 20 feature spins",
           "do 30 feature spins"
