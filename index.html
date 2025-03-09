@@ -353,16 +353,23 @@
       }
     }
 
-    // Update slider display with infinite loop duplication
+    // Update slider display with infinite loop duplication.
     function updateSliderDisplay() {
       const slider = document.getElementById('slider');
       slider.innerHTML = '';
+      // Append original slots
       slots.forEach(slot => slider.appendChild(slot));
-      // Duplicate slots for infinite loop effect.
-      slots.forEach(slot => {
-        let clone = slot.cloneNode(true);
-        slider.appendChild(clone);
-      });
+
+      // If only Massive Studios slots are selected, duplicate more times.
+      const isOnlyMassive = slots.length > 0 && slots.every(slot => slot.dataset.provider === "massive");
+      const cloneCount = isOnlyMassive ? 3 : 1;
+      
+      for (let i = 0; i < cloneCount; i++) {
+        slots.forEach(slot => {
+          let clone = slot.cloneNode(true);
+          slider.appendChild(clone);
+        });
+      }
       currentTranslate = 0;
       slider.style.transition = 'none';
       slider.style.transform = `translateX(0px)`;
