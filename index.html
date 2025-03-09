@@ -100,7 +100,7 @@
     .modal-content .task-btn {
       background: #ccc;
       color: #333;
-      margin: 15px auto;
+      margin: 15px auto; /* centers the button */
       padding: 10px 20px;
       font-size: 16px;
       border: none;
@@ -240,7 +240,7 @@
   
   <!-- Dropdown with Provider Checkboxes -->
   <div class="dropdown">
-    <button class="dropbtn" id="providerDropdownBtn">All Providers</button>
+    <button class="dropbtn" id="providerDropdownBtn">Select Providers</button>
     <div class="dropdown-content" id="providerDropdownContent">
       <label><input type="checkbox" id="pragmaticCheckbox" checked> Pragmatic Play</label>
       <label><input type="checkbox" id="hacksawCheckbox" checked> Hacksaw Gaming</label>
@@ -321,25 +321,9 @@
       content.style.display = content.style.display === "block" ? "none" : "block";
     });
 
-    // Update dropdown button text based on checkboxes
+    // Update dropdown button text to always display "Select Providers"
     function updateDropdownButtonText() {
-      const pragmatic = document.getElementById("pragmaticCheckbox").checked;
-      const hacksaw = document.getElementById("hacksawCheckbox").checked;
-      const nolimit = document.getElementById("nolimitCheckbox").checked;
-      const btn = document.getElementById("providerDropdownBtn");
-      const selected = [];
-      if(pragmatic) selected.push("Pragmatic Play");
-      if(hacksaw) selected.push("Hacksaw Gaming");
-      if(nolimit) selected.push("Nolimit City");
-      if(selected.length === 0) {
-        btn.textContent = "Select Providers";
-      } else if(selected.length === 1) {
-        btn.textContent = selected[0];
-      } else if(selected.length === 3) {
-        btn.textContent = "All Providers";
-      } else {
-        btn.textContent = selected.join(" & ");
-      }
+      document.getElementById("providerDropdownBtn").textContent = "Select Providers";
     }
     document.getElementById("pragmaticCheckbox").addEventListener("change", () => {
       updateDropdownButtonText();
@@ -561,7 +545,15 @@
       let modalSlotName = document.getElementById('modalSlotName');
       const modalPlayButton = document.getElementById('modalPlayButton');
       modalSlotImage.src = slot.querySelector('img').src;
-      modalSlotName.textContent = slot.dataset.name.replace(/Pragmatic\s*Play/gi, "").trim();
+      // For Nolimit City slots, remove "Nolimit City" from the name.
+      if (slot.dataset.provider === "nolimit") {
+        modalSlotName.textContent = slot.dataset.name.replace(/Nolimit\s*City/gi, "").trim();
+      } else if (slot.dataset.provider === "pragmatic") {
+        modalSlotName.textContent = slot.dataset.name.replace(/Pragmatic\s*Play/gi, "").trim();
+      } else {
+        // For hacksaw or other providers, show the name as is.
+        modalSlotName.textContent = slot.dataset.name.trim();
+      }
       let originalLink = slot.dataset.link;
       function updatePlayLink() {
         const selectedDomain = domainSelector.value;
