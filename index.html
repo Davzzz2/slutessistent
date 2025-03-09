@@ -252,7 +252,6 @@
       border: 1px solid #fff;
       background: #444;
       color: #fff;
-      /* Always show the placeholder text */
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
@@ -260,7 +259,8 @@
       background-repeat: no-repeat;
       background-position: right 10px center;
       cursor: pointer;
-      margin-top: -10px; /* Moved up a little bit */
+      position: relative;
+      top: -20px; /* Moves the select domain up */
     }
   </style>
 </head>
@@ -389,9 +389,7 @@
     domainSelector.addEventListener("change", function() {
       if (this.value !== "") {
          selectedDomain = this.value;
-         // Disable further changes
          this.disabled = true;
-         // Reset displayed value to default (always shows "Select Domain")
          this.value = "";
       }
     });
@@ -423,16 +421,16 @@
       }
     }
 
-    // Always loop all slots by duplicating them once extra.
+    // Always loop all slots by duplicating them enough times.
     function updateSliderDisplay() {
       const slider = document.getElementById('slider');
       slider.innerHTML = '';
-      slots.forEach(slot => slider.appendChild(slot));
-      // Duplicate slots once for looping effect.
-      slots.forEach(slot => {
-        let clone = slot.cloneNode(true);
-        slider.appendChild(clone);
-      });
+      // Append the slots 3 times for a seamless infinite effect.
+      for (let i = 0; i < 3; i++) {
+        slots.forEach(slot => {
+          slider.appendChild(i === 0 ? slot : slot.cloneNode(true));
+        });
+      }
       currentTranslate = 0;
       slider.style.transition = 'none';
       slider.style.transform = `translateX(0px)`;
@@ -782,6 +780,7 @@
         return;
       }
       const slider = document.getElementById('slider');
+      // Only consider the first copy (original slots) for selection.
       const sliderSlots = Array.from(slider.children).slice(0, slots.length);
       let chosenId = chosenSlot.dataset.slotId;
       let finalIndex = sliderSlots.findIndex(el => el.dataset.slotId === chosenId);
