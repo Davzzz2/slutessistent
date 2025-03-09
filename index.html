@@ -246,7 +246,7 @@
     }
     /* Custom Domain Selector Styles */
     #domainSelector {
-      padding: 5px 10px;
+      padding: 5px 17px;
       font-size: 16px;
       border-radius: 5px;
       border: 1px solid #fff;
@@ -260,7 +260,7 @@
       background-position: right 10px center;
       cursor: pointer;
       position: relative;
-      top: -20px; /* Moves the select domain up */
+      top: -15px;
     }
   </style>
 </head>
@@ -425,8 +425,9 @@
     function updateSliderDisplay() {
       const slider = document.getElementById('slider');
       slider.innerHTML = '';
-      // Append the slots 3 times for a seamless infinite effect.
-      for (let i = 0; i < 3; i++) {
+      // If only one slot, clone it more times to ensure a seamless loop.
+      let repeatCount = slots.length < 2 ? 10 : 3;
+      for (let i = 0; i < repeatCount; i++) {
         slots.forEach(slot => {
           slider.appendChild(i === 0 ? slot : slot.cloneNode(true));
         });
@@ -829,9 +830,10 @@
       const modalPlayButton = document.getElementById('modalPlayButton');
       modalSlotImage.src = slot.querySelector('img').src;
       
-      // Remove any known provider names from the slot name.
+      // Remove provider names from the slot name.
       const providerRemovalMap = {
         pragmatic: /Pragmatic\s*Play/gi,
+        hacksaw: /Hacksaw\s*Gaming/gi,
         nolimit: /Nolimit\s*City/gi,
         massive: /Massive\s*Studios/gi,
         twist: /Twist\s*Gaming/gi,
